@@ -1,18 +1,22 @@
 # local-queue
+
 # 一个简单基于内存的并发控制队列
 
 ## Installation
+
 ```bash
 yarn add queue-local
 ```
+
 or
+
 ```bash
 npm install -save queue-local
 ```
 
 ## Example
 
-```javascript
+```typescript
 import { Queue, QueueOptions } from "../src";
 
 const p1 = () => {
@@ -32,11 +36,11 @@ const p2 = () => {
 }
 
 
-const p3 = () => {
+const p3 = (time: number, msg: string) => {
     return new Promise((resolve => {
         setTimeout(() => {
-            return resolve(3)
-        }, 600)
+            return resolve(msg)
+        }, time)
     }))
 }
 
@@ -78,19 +82,28 @@ q.push({
         console.log(`p2 方法失败了：结果：${err}`)
     }
 })
-q.push({ fn: p3, args: [] })
+q.push({
+    fn: p3,
+    args: [600, 'test 3'],
+    onSuccess: (res) => {
+        console.log(`p3 方法完成了：结果：${res}`)
+    }
+})
 q.jump({ fn: p4, args: [500] })
 ```
 
 ## Method
 
 ```javascript
-export interface QueueDto {
-    fn: (args: any) => Promise<any>;
+export
+interface
+QueueDto
+{
+    fn: (args: any) => Promise < any >;
     args: any[];
-    onSuccess?: (res: any) => any;
-    onError?: (res: any) => any;
-    tryTimes?: number;
+    onSuccess ? : (res: any) => any;
+    onError ? : (res: any) => any;
+    tryTimes ? : number;
 }
 ```
 

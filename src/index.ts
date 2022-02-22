@@ -1,7 +1,7 @@
 import { EventEmitter } from "events";
 
 export interface QueueDto {
-    fn: (args: any) => Promise<any>;
+    fn: (...args: any) => Promise<any>;
     onSuccess?: (res: any) => any;
     onError?: (res: any) => any;
     args: any[];
@@ -121,7 +121,7 @@ export class Queue {
                 }
                 const { fn, args, tryTimes, onSuccess, onError } = data;
                 this.runQueue.push({ fn, args, tryTimes, onSuccess, onError });
-                this.promiseQueue.push(fn(args));
+                this.promiseQueue.push(fn(...args));
                 if (this.queue.length) {
                     continue;
                 }

@@ -94,7 +94,7 @@ class Queue {
                 }
                 const { fn, args, tryTimes, onSuccess, onError } = data;
                 this.runQueue.push({ fn, args, tryTimes, onSuccess, onError });
-                this.promiseQueue.push(fn(args));
+                this.promiseQueue.push(fn(...args));
                 if (this.queue.length) {
                     continue;
                 }

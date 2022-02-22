@@ -1,5 +1,5 @@
 export interface QueueDto {
-    fn: (args: any) => Promise<any>;
+    fn: (...args: any) => Promise<any>;
     onSuccess?: (res: any) => any;
     onError?: (res: any) => any;
     args: any[];

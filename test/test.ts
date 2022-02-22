@@ -17,11 +17,11 @@ const p2 = () => {
 }
 
 
-const p3 = () => {
+const p3 = (time: number, msg: string) => {
     return new Promise((resolve => {
         setTimeout(() => {
-            return resolve(3)
-        }, 600)
+            return resolve(msg)
+        }, time)
     }))
 }
 
@@ -63,5 +63,10 @@ q.push({
         console.log(`p2 方法失败了：结果：${err}`)
     }
 })
-q.push({ fn: p3, args: [] })
+q.push({
+    fn: p3, args: [500, 'test'],
+    onSuccess: (res) => {
+        console.log(`p3 方法完成了：结果：${res}`)
+    }
+})
 q.jump({ fn: p4, args: [500] })
