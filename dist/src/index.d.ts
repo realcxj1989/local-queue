@@ -36,5 +36,4 @@ export declare class Queue {
     jump(body: QueueDto): Promise<void>;
     start(): Promise<void>;
     stop(): Promise<unknown>;
-    private handlePromise;
 }

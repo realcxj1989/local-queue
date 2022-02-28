@@ -99,7 +99,40 @@ class Queue {
                     continue;
                 }
             }
-            await Promise.all(this.handlePromise(this.promiseQueue));
+            const result = await Promise.allSettled(this.promiseQueue);
+            result.forEach((item, index) => {
+                const data = this.runQueue[index];
+                if (item.status === 'fulfilled') {
+                    if (!data) {
+                        return item.value;
+                    }
+                    const { onSuccess } = data;
+                    if (onSuccess) {
+                        onSuccess(item.value);
+                    }
+                }
+                else {
+                    const { reason } = item;
+                    if (!data) {
+                        return this.onError(reason);
+                    }
+                    const { fn, args, tryTimes, onSuccess, onError } = data;
+                    if (tryTimes === undefined || tryTimes >= this.retryTimes) {
+                        if (onError) {
+                            onError(reason);
+                        }
+                        return this.onError(reason, fn);
+                    }
+                    this.logInfo(`${fn.name} error: ${reason}, retry times ${(tryTimes !== null && tryTimes !== void 0 ? tryTimes : 0) + 1}`);
+                    return this.eventEmitter.emit("retry", {
+                        fn,
+                        args,
+                        tryTimes: (tryTimes !== null && tryTimes !== void 0 ? tryTimes : 0) + 1,
+                        onSuccess,
+                        onError,
+                    });
+                }
+            });
             this.runQueue = [];
             this.promiseQueue = [];
             if (this.isStop) {
@@ -122,39 +155,6 @@ class Queue {
                 return resolve(true);
             });
         });
-    }
-    handlePromise(promiseList) {
-        return promiseList.map((promise, index) => promise.then((res) => {
-            const data = this.runQueue[index];
-            if (!data) {
-                return res;
-            }
-            const { onSuccess } = data;
-            if (onSuccess) {
-                onSuccess(res);
-            }
-            return res;
-        }, (err) => {
-            const data = this.runQueue[index];
-            if (!data) {
-                return this.onError(err);
-            }
-            const { fn, args, tryTimes, onSuccess, onError } = data;
-            if (tryTimes === undefined || tryTimes >= this.retryTimes) {
-                if (onError) {
-                    onError(err);
-                }
-                return this.onError(err, fn);
-            }
-            this.logInfo(`${fn.name} error: ${err}, retry times ${(tryTimes !== null && tryTimes !== void 0 ? tryTimes : 0) + 1}`);
-            return this.eventEmitter.emit("retry", {
-                fn,
-                args,
-                tryTimes: (tryTimes !== null && tryTimes !== void 0 ? tryTimes : 0) + 1,
-                onSuccess,
-                onError,
-            });
-        }));
     }
 }
 exports.Queue = Queue;
