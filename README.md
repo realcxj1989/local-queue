@@ -95,10 +95,7 @@ q.jump({ fn: p4, args: [500] })
 ## Method
 
 ```javascript
-export
-interface
-QueueDto
-{
+export interface QueueDto{
     fn: (args: any) => Promise < any >;
     args: any[];
     onSuccess ? : (res: any) => any;
